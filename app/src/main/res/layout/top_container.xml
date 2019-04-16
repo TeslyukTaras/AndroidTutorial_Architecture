@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:id="@+id/currentWeatherStatus"
+            android:background="@color/colorPrimary"
+            android:padding="10dp">
+
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="horizontal">
+
+            <ImageView android:layout_width="wrap_content"
+                       android:layout_height="match_parent"
+                       android:layout_gravity="center"
+                       android:src="@drawable/ic_temperature"/>
+
+            <TextView android:id="@+id/temperatureTv"
+                      android:layout_width="wrap_content"
+                      android:layout_height="match_parent"
+                      android:gravity="center_vertical"
+                      android:layout_margin="8dp"
+                      tools:text="10.3*C"
+                      android:textColor="@color/white"
+                      android:textSize="30sp"/>
+
+            <ImageView
+                    android:id="@+id/weatherIconIv"
+                    android:layout_width="75dp"
+                    android:layout_height="75dp"
+                    tools:src="@drawable/ic_launcher_background"
+                    android:scaleType="fitCenter"/>
+
+            <TextView android:id="@+id/weatherDescriptionTv"
+                      android:layout_width="match_parent"
+                      android:layout_height="match_parent"
+                      android:gravity="left|center_vertical"
+                      android:textColor="@color/white"
+                      android:layout_weight="1"
+                      tools:text="Cloudy"
+                      android:ellipsize="end"
+                      android:maxLines="2"
+                      android:layout_margin="8dp"
+                      android:textSize="22sp"/>
+
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="horizontal"
+                      android:layout_marginTop="8dp">
+
+            <ImageView android:layout_width="15dp"
+                       android:layout_height="15dp"
+                       android:layout_gravity="center"
+                       android:src="@drawable/ic_arrow_upward"/>
+
+            <TextView android:id="@+id/maxTempTv"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      tools:text="10*C"
+                      android:textColor="@color/white"
+                      android:textSize="16sp"/>
+
+            <ImageView android:layout_width="15dp"
+                       android:layout_height="15dp"
+                       android:layout_gravity="center"
+                       android:layout_marginLeft="8dp"
+                       android:src="@drawable/ic_arrow_downward"/>
+
+            <TextView android:id="@+id/minTempTv"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      tools:text="6*C"
+                      android:textColor="@color/white"
+                      android:textSize="16sp"/>
+
+
+            <ImageView android:layout_width="15dp"
+                       android:layout_height="15dp"
+                       android:layout_gravity="center"
+                       android:layout_marginLeft="8dp"
+                       android:src="@drawable/ic_invert_colors"/>
+
+            <TextView android:id="@+id/humidityTv"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      tools:text="55%"
+                      android:textColor="@color/white"
+                      android:textSize="16sp"/>
+
+        </LinearLayout>
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
