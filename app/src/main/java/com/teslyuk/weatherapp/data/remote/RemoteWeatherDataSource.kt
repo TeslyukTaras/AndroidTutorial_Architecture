@@ -1,12 +1,10 @@
-package com.teslyuk.weatherapp.ui
+package com.teslyuk.weatherapp.data.remote
 
 import com.teslyuk.weatherapp.BuildConfig
 import com.teslyuk.weatherapp.R
-import com.teslyuk.weatherapp.WeatherApp
-import com.teslyuk.weatherapp.data.local.AppDatabase
+import com.teslyuk.weatherapp.data.IWeatherDataSource
 import com.teslyuk.weatherapp.data.model.Weather
 import com.teslyuk.weatherapp.data.model.WeatherResponse
-import com.teslyuk.weatherapp.data.remote.OpenWeatherApi
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
@@ -16,26 +14,10 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
-class MainModel(var presenter: MainPresenter) {
+class RemoteWeatherDataSource : IWeatherDataSource {
 
-    private var localDatabase: AppDatabase = WeatherApp.instance!!.db
     private var remoteApi: OpenWeatherApi = getWeatherApi()
-    private var cityName = TEST_CITY_NAME
 
-    companion object {
-        const val TEST_CITY_NAME = "Lviv"
-    }
-
-    fun loadWeather() {
-        var cashedWeather = localDatabase.weatherDao().getAll()
-        if (cashedWeather.isNotEmpty()) {
-            presenter.onWeatherReceived(cityName, cashedWeather)
-        } else {
-            loadWeatherForCity(cityName)
-        }
-    }
-
-    // API calls
     private fun getWeatherApi(): OpenWeatherApi {
         val interceptor = HttpLoggingInterceptor()
         interceptor.level = HttpLoggingInterceptor.Level.BODY
@@ -55,9 +37,8 @@ class MainModel(var presenter: MainPresenter) {
         return retrofit.create(OpenWeatherApi::class.java)
     }
 
-    fun loadWeatherForCity(city: String) {
-        cityName = city
-        remoteApi.weatherByCity(cityName, BuildConfig.WEATHER_API_KEY).enqueue(object :
+    override fun getWeather(city: String, callback: IWeatherDataSource.IWeatherCallback) {
+        remoteApi.weatherByCity(city, BuildConfig.WEATHER_API_KEY).enqueue(object :
             Callback<WeatherResponse> {
             override fun onResponse(call: Call<WeatherResponse>, response: Response<WeatherResponse>) {
                 if (response.body() != null) {
@@ -65,17 +46,15 @@ class MainModel(var presenter: MainPresenter) {
                     response.body()!!.list.forEach {
                         convertedWeather.add(Weather(it))
                     }
-                    localDatabase.weatherDao().deleteAll()
-                    localDatabase.weatherDao().insert(convertedWeather)
-                    loadWeather()
+                    callback.onReceived(city, convertedWeather)
                 } else {
-                    presenter.onError(R.string.no_data_available)
+                    callback.onFailure(R.string.no_data_available)
                 }
             }
 
             override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
                 t.printStackTrace()
-                presenter.onError(R.string.request_failure)
+                callback.onFailure(R.string.request_failure)
             }
         })
     }
