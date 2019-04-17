@@ -9,6 +9,10 @@ class WeatherApp : Application() {
 
     lateinit var db: AppDatabase
 
+    companion object {
+        var instance: WeatherApp? = null
+    }
+
     override fun onCreate() {
         super.onCreate()
         db = Room.databaseBuilder(
@@ -17,5 +21,6 @@ class WeatherApp : Application() {
         )
             .allowMainThreadQueries()
             .build()
+        instance = this
     }
 }

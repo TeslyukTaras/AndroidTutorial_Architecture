@@ -11,10 +11,13 @@ import kotlinx.android.synthetic.main.activity_main.*
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import com.teslyuk.weatherapp.data.model.Weather
 import com.teslyuk.weatherapp.ui.adapter.DailyWeatherAdapter
 import com.teslyuk.weatherapp.ui.adapter.HourlyWeatherAdapter
+import com.teslyuk.weatherapp.util.loadWeatherIcon
+import kotlinx.android.synthetic.main.top_container.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), IMainView {
 
     //day
     private lateinit var dayRecyclerView: RecyclerView
@@ -76,7 +79,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun showCityNameDialog() {
+    override fun showCityNameDialog() {
         val alert = AlertDialog.Builder(this)
         val editText = EditText(this)
         alert.setMessage("Select City")
@@ -89,7 +92,43 @@ class MainActivity : AppCompatActivity() {
         alert.show()
     }
 
-    fun showToast(errorCode: Int) {
+    override fun showToast(errorCode: Int) {
         Toast.makeText(this, errorCode, Toast.LENGTH_LONG).show()
+    }
+
+    override fun setTitle(title: String) {
+        toolbar.title = title
+    }
+
+    override fun showHourlyWeather(input: List<Weather>) {
+        hourViewAdapter.updateData(input)
+    }
+
+    override fun showDailyWeather(input: List<Weather>) {
+        dayViewAdapter.updateData(input)
+    }
+
+    override fun showWeatherDescription(description: String?) {
+        weatherDescriptionTv.text = description
+    }
+
+    override fun showMinTemperature(minTemp: String) {
+        minTempTv.text = minTemp
+    }
+
+    override fun showMaxTemperature(maxTemp: String) {
+        maxTempTv.text = maxTemp
+    }
+
+    override fun showHumidity(maxTemp: String) {
+        humidityTv.text = maxTemp
+    }
+
+    override fun showTemperature(maxTemp: String) {
+        temperatureTv.text = maxTemp
+    }
+
+    override fun showWeatherIcon(icon: String?) {
+        weatherIconIv.loadWeatherIcon(icon)
     }
 }

@@ -1,6 +1,5 @@
 package com.teslyuk.weatherapp.ui
 
-import android.util.Log
 import com.teslyuk.weatherapp.BuildConfig
 import com.teslyuk.weatherapp.R
 import com.teslyuk.weatherapp.WeatherApp
@@ -19,7 +18,7 @@ import java.util.concurrent.TimeUnit
 
 class MainModel(var controller: MainController) {
 
-    private var localDatabase: AppDatabase = (controller.view.application as WeatherApp).db
+    private var localDatabase: AppDatabase = WeatherApp.instance!!.db
     private var remoteApi: OpenWeatherApi = getWeatherApi()
     private var cityName = TEST_CITY_NAME
 

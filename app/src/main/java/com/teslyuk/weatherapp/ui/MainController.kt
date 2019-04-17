@@ -3,12 +3,9 @@ package com.teslyuk.weatherapp.ui
 import com.teslyuk.weatherapp.data.model.Weather
 import com.teslyuk.weatherapp.util.formatHumidity
 import com.teslyuk.weatherapp.util.formatKelvinToCelsius
-import com.teslyuk.weatherapp.util.loadWeatherIcon
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.top_container.*
 import java.util.*
 
-class MainController(val view: MainActivity) {
+class MainController(val view: IMainView) {
 
     private val model by lazy { MainModel(this) }
 
@@ -89,25 +86,25 @@ class MainController(val view: MainActivity) {
     }
 
     private fun displayCurrentWeather(weather: Weather) {
-        view.weatherDescriptionTv.text = weather.description
-        view.minTempTv.text = weather.tempMin.formatKelvinToCelsius()
-        view.maxTempTv.text = weather.tempMax.formatKelvinToCelsius()
-        view.humidityTv.text = weather.humidity.formatHumidity()
-        view.temperatureTv.text = weather.temp.formatKelvinToCelsius()
+        view.showWeatherDescription(weather.description)
+        view.showMinTemperature(weather.tempMin.formatKelvinToCelsius())
+        view.showMaxTemperature(weather.tempMax.formatKelvinToCelsius())
+        view.showHumidity(weather.humidity.formatHumidity())
+        view.showTemperature(weather.temp.formatKelvinToCelsius())
 
-        view.weatherIconIv.loadWeatherIcon(weather.icon)
+        view.showWeatherIcon(weather.icon)
     }
 
     private fun display24HourWeather(input: List<Weather>) {
-        view.hourViewAdapter.updateData(input)
+        view.showHourlyWeather(input)
     }
 
     private fun display5DayWeather(input: List<Weather>) {
-        view.dayViewAdapter.updateData(input)
+        view.showDailyWeather(input)
     }
 
     private fun displayTitle(title: String) {
-        view.toolbar.title = title
+        view.setTitle(title)
     }
 
     fun onError(errorCode: Int) {
