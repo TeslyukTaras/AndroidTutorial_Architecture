@@ -11,12 +11,10 @@ import kotlinx.android.synthetic.main.activity_main.*
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import com.teslyuk.weatherapp.ui.adapter.DailyWeatherAdapter
+import com.teslyuk.weatherapp.ui.adapter.HourlyWeatherAdapter
 
 class MainActivity : AppCompatActivity() {
-
-    companion object {
-        const val KEY_TAG = "TEST_LOG"
-    }
 
     //day
     private lateinit var dayRecyclerView: RecyclerView

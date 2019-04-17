@@ -20,15 +20,11 @@ import java.util.concurrent.TimeUnit
 class MainModel(var controller: MainController) {
 
     private var localDatabase: AppDatabase = (controller.view.application as WeatherApp).db
-    private var remoteApi: OpenWeatherApi
+    private var remoteApi: OpenWeatherApi = getWeatherApi()
     private var cityName = TEST_CITY_NAME
 
     companion object {
         const val TEST_CITY_NAME = "Lviv"
-    }
-
-    init {
-        remoteApi = getWeatherApi()
     }
 
     fun loadWeather() {
@@ -65,9 +61,7 @@ class MainModel(var controller: MainController) {
         remoteApi.weatherByCity(cityName, BuildConfig.WEATHER_API_KEY).enqueue(object :
             Callback<WeatherResponse> {
             override fun onResponse(call: Call<WeatherResponse>, response: Response<WeatherResponse>) {
-                Log.d(MainActivity.KEY_TAG, "onResponse:")
                 if (response.body() != null) {
-                    Log.d(MainActivity.KEY_TAG, "city: ${response.body()!!.city}")
                     var convertedWeather = mutableListOf<Weather>()
                     response.body()!!.list.forEach {
                         convertedWeather.add(Weather(it))
@@ -81,7 +75,6 @@ class MainModel(var controller: MainController) {
             }
 
             override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
-                Log.d(MainActivity.KEY_TAG, "onFailure:")
                 t.printStackTrace()
                 controller.onError(R.string.request_failure)
             }

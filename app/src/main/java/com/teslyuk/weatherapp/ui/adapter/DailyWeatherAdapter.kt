@@ -1,4 +1,4 @@
-package com.teslyuk.weatherapp.ui
+package com.teslyuk.weatherapp.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.View
