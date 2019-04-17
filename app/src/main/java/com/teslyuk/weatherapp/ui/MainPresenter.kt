@@ -1,5 +1,7 @@
 package com.teslyuk.weatherapp.ui
 
+import com.teslyuk.weatherapp.data.IWeatherDataSource
+import com.teslyuk.weatherapp.data.local.LocalWeatherDataSource
 import com.teslyuk.weatherapp.data.model.Weather
 import com.teslyuk.weatherapp.util.formatHumidity
 import com.teslyuk.weatherapp.util.formatKelvinToCelsius
@@ -7,10 +9,22 @@ import java.util.*
 
 class MainPresenter(val view: IMainView) {
 
-    private val model by lazy { MainModel(this) }
+    private val model by lazy { WeatherRepository() }
 
     fun fetchData() {
-        model.loadWeather()
+        getWeather(LocalWeatherDataSource.TEST_CITY_NAME)
+    }
+
+    private fun getWeather(cityName: String) {
+        model.getWeather(cityName, object : IWeatherDataSource.IWeatherCallback {
+            override fun onReceived(city: String, data: List<Weather>) {
+                onWeatherReceived(cityName, data)
+            }
+
+            override fun onFailure(errorCode: Int) {
+                onError(errorCode)
+            }
+        })
     }
 
     fun onWeatherReceived(cityName: String, weather: List<Weather>) {
@@ -116,6 +130,6 @@ class MainPresenter(val view: IMainView) {
     }
 
     fun onCitySelected(cityName: String) {
-        model.loadWeatherForCity(cityName)
+        getWeather(cityName)
     }
 }
