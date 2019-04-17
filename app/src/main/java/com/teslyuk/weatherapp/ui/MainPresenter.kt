@@ -1,6 +1,7 @@
 package com.teslyuk.weatherapp.ui
 
 import com.teslyuk.weatherapp.data.IWeatherDataSource
+import com.teslyuk.weatherapp.data.WeatherRepository
 import com.teslyuk.weatherapp.data.local.LocalWeatherDataSource
 import com.teslyuk.weatherapp.data.model.Weather
 import com.teslyuk.weatherapp.util.formatHumidity
