@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity(), IMainView {
     lateinit var hourViewAdapter: HourlyWeatherAdapter
     private lateinit var hourViewManager: RecyclerView.LayoutManager
 
-    private val controller by lazy { MainController(this) }
+    private val presenter by lazy { MainPresenter(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity(), IMainView {
 
     override fun onResume() {
         super.onResume()
-        controller.fetchData()
+        presenter.fetchData()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -72,7 +72,7 @@ class MainActivity : AppCompatActivity(), IMainView {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_add_city -> {
-                controller.onChangeCityClick()
+                presenter.onChangeCityClick()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity(), IMainView {
         alert.setTitle("Enter Your city name")
         alert.setView(editText)
         alert.setPositiveButton("Search") { dialog, whichButton ->
-            controller.onCitySelected(editText.text.toString())
+            presenter.onCitySelected(editText.text.toString())
         }
 
         alert.show()

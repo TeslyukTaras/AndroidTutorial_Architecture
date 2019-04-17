@@ -5,7 +5,7 @@ import com.teslyuk.weatherapp.util.formatHumidity
 import com.teslyuk.weatherapp.util.formatKelvinToCelsius
 import java.util.*
 
-class MainController(val view: IMainView) {
+class MainPresenter(val view: IMainView) {
 
     private val model by lazy { MainModel(this) }
 

@@ -16,7 +16,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
-class MainModel(var controller: MainController) {
+class MainModel(var presenter: MainPresenter) {
 
     private var localDatabase: AppDatabase = WeatherApp.instance!!.db
     private var remoteApi: OpenWeatherApi = getWeatherApi()
@@ -29,7 +29,7 @@ class MainModel(var controller: MainController) {
     fun loadWeather() {
         var cashedWeather = localDatabase.weatherDao().getAll()
         if (cashedWeather.isNotEmpty()) {
-            controller.onWeatherReceived(cityName, cashedWeather)
+            presenter.onWeatherReceived(cityName, cashedWeather)
         } else {
             loadWeatherForCity(cityName)
         }
@@ -69,13 +69,13 @@ class MainModel(var controller: MainController) {
                     localDatabase.weatherDao().insert(convertedWeather)
                     loadWeather()
                 } else {
-                    controller.onError(R.string.no_data_available)
+                    presenter.onError(R.string.no_data_available)
                 }
             }
 
             override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
                 t.printStackTrace()
-                controller.onError(R.string.request_failure)
+                presenter.onError(R.string.request_failure)
             }
         })
     }
