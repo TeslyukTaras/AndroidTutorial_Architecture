@@ -1,5 +1,7 @@
 package com.teslyuk.weatherapp.ui
 
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.teslyuk.weatherapp.data.WeatherRepository
 import com.teslyuk.weatherapp.data.local.LocalWeatherDataSource
 import com.teslyuk.weatherapp.data.model.Weather
@@ -8,24 +10,39 @@ import com.teslyuk.weatherapp.domain.FilterDailyWeatherUseCase
 import com.teslyuk.weatherapp.domain.FilterHourlyWeatherUseCase
 import com.teslyuk.weatherapp.domain.FilterNowWeatherUseCase
 import com.teslyuk.weatherapp.domain.GetWeatherUseCase
-import com.teslyuk.weatherapp.util.formatHumidity
-import com.teslyuk.weatherapp.util.formatKelvinToCelsius
 
-class MainPresenter(private val view: IMainView) {
+class MainViewModel : ViewModel() {
 
     private val getWeather by lazy { GetWeatherUseCase(WeatherRepository()) }
     private val filterDailyWeather by lazy { FilterDailyWeatherUseCase() }
     private val filterHourlyWeather by lazy { FilterHourlyWeatherUseCase() }
     private val filterNowWeather by lazy { FilterNowWeatherUseCase() }
 
+    val currentWeather: MutableLiveData<Weather> by lazy {
+        MutableLiveData<Weather>()
+    }
+
+    val hourlyWeather: MutableLiveData<List<Weather>> by lazy {
+        MutableLiveData<List<Weather>>()
+    }
+
+    val dailyWeather: MutableLiveData<List<Weather>> by lazy {
+        MutableLiveData<List<Weather>>()
+    }
+
+    val cityName: MutableLiveData<String> by lazy {
+        MutableLiveData<String>()
+    }
+
     fun fetchData() {
         getWeather(LocalWeatherDataSource.TEST_CITY_NAME)
     }
 
-    private fun getWeather(cityName: String) {
-        getWeather.run(cityName, object : UseCase.UseCaseCallback<List<Weather>> {
+    fun getWeather(city: String) {
+        cityName.value = city
+        getWeather.run(city, object : UseCase.UseCaseCallback<List<Weather>> {
             override fun onSuccess(response: List<Weather>) {
-                onWeatherReceived(cityName, response)
+                onWeatherReceived(response)
             }
 
             override fun onError(t: Throwable) {
@@ -34,12 +51,11 @@ class MainPresenter(private val view: IMainView) {
         })
     }
 
-    fun onWeatherReceived(cityName: String, weather: List<Weather>) {
-        displayTitle(cityName)
+    fun onWeatherReceived(weather: List<Weather>) {
         if (weather.isNotEmpty()) {
             filterHourlyWeather.run(weather, object : UseCase.UseCaseCallback<List<Weather>> {
                 override fun onSuccess(response: List<Weather>) {
-                    display24HourWeather(response)
+                    hourlyWeather.value = response
                 }
 
                 override fun onError(t: Throwable) {
@@ -49,7 +65,7 @@ class MainPresenter(private val view: IMainView) {
 
             filterDailyWeather.run(weather, object : UseCase.UseCaseCallback<List<Weather>> {
                 override fun onSuccess(response: List<Weather>) {
-                    display5DayWeather(response)
+                    dailyWeather.value = response
                 }
 
                 override fun onError(t: Throwable) {
@@ -58,7 +74,7 @@ class MainPresenter(private val view: IMainView) {
             })
             filterNowWeather.run(weather, object : UseCase.UseCaseCallback<Weather?> {
                 override fun onSuccess(response: Weather?) {
-                    if (response != null) displayCurrentWeather(response)
+                    if (response != null) currentWeather.value = response
                 }
 
                 override fun onError(t: Throwable) {
@@ -66,35 +82,5 @@ class MainPresenter(private val view: IMainView) {
                 }
             })
         }
-    }
-
-    private fun displayCurrentWeather(weather: Weather) {
-        view.showWeatherDescription(weather.description)
-        view.showMinTemperature(weather.tempMin.formatKelvinToCelsius())
-        view.showMaxTemperature(weather.tempMax.formatKelvinToCelsius())
-        view.showHumidity(weather.humidity.formatHumidity())
-        view.showTemperature(weather.temp.formatKelvinToCelsius())
-
-        view.showWeatherIcon(weather.icon)
-    }
-
-    private fun display24HourWeather(input: List<Weather>) {
-        view.showHourlyWeather(input)
-    }
-
-    private fun display5DayWeather(input: List<Weather>) {
-        view.showDailyWeather(input)
-    }
-
-    private fun displayTitle(title: String) {
-        view.setTitle(title)
-    }
-
-    fun onChangeCityClick() {
-        view.showCityNameDialog()
-    }
-
-    fun onCitySelected(cityName: String) {
-        getWeather(cityName)
     }
 }

@@ -3,7 +3,6 @@ package com.teslyuk.weatherapp.ui
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.teslyuk.weatherapp.R
@@ -11,9 +10,14 @@ import kotlinx.android.synthetic.main.activity_main.*
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.teslyuk.weatherapp.data.model.Weather
 import com.teslyuk.weatherapp.ui.adapter.DailyWeatherAdapter
 import com.teslyuk.weatherapp.ui.adapter.HourlyWeatherAdapter
+import com.teslyuk.weatherapp.util.formatHumidity
+import com.teslyuk.weatherapp.util.formatKelvinToCelsius
 import com.teslyuk.weatherapp.util.loadWeatherIcon
 import kotlinx.android.synthetic.main.top_container.*
 
@@ -29,14 +33,15 @@ class MainActivity : AppCompatActivity(), IMainView {
     lateinit var hourViewAdapter: HourlyWeatherAdapter
     private lateinit var hourViewManager: RecyclerView.LayoutManager
 
-    private val presenter by lazy { MainPresenter(this) }
+    private lateinit var viewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-
+        viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
         initView()
+        initDataListeners()
     }
 
     private fun initView() {
@@ -59,9 +64,33 @@ class MainActivity : AppCompatActivity(), IMainView {
         }
     }
 
+    private fun initDataListeners() {
+        viewModel.currentWeather.observe(this, Observer<Weather> { weather ->
+            showWeatherDescription(weather.description)
+            showMinTemperature(weather.tempMin.formatKelvinToCelsius())
+            showMaxTemperature(weather.tempMax.formatKelvinToCelsius())
+            showHumidity(weather.humidity.formatHumidity())
+            showTemperature(weather.temp.formatKelvinToCelsius())
+
+            showWeatherIcon(weather.icon)
+        })
+
+        viewModel.hourlyWeather.observe(this, Observer<List<Weather>> { items ->
+            showHourlyWeather(items)
+        })
+
+        viewModel.dailyWeather.observe(this, Observer<List<Weather>> { items ->
+            showDailyWeather(items)
+        })
+
+        viewModel.cityName.observe(this, Observer<String> { title ->
+            setTitle(title)
+        })
+    }
+
     override fun onResume() {
         super.onResume()
-        presenter.fetchData()
+        viewModel.fetchData()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -72,7 +101,7 @@ class MainActivity : AppCompatActivity(), IMainView {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_add_city -> {
-                presenter.onChangeCityClick()
+                showCityNameDialog()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -86,7 +115,7 @@ class MainActivity : AppCompatActivity(), IMainView {
         alert.setTitle("Enter Your city name")
         alert.setView(editText)
         alert.setPositiveButton("Search") { dialog, whichButton ->
-            presenter.onCitySelected(editText.text.toString())
+            viewModel.getWeather(editText.text.toString())
         }
 
         alert.show()
