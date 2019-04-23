@@ -1,15 +1,12 @@
 package com.teslyuk.weatherapp.data.remote
 
+import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import com.teslyuk.weatherapp.BuildConfig
-import com.teslyuk.weatherapp.R
 import com.teslyuk.weatherapp.data.IWeatherDataSource
 import com.teslyuk.weatherapp.data.model.Weather
-import com.teslyuk.weatherapp.data.model.WeatherResponse
+import io.reactivex.Single
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
@@ -32,30 +29,20 @@ class RemoteWeatherDataSource : IWeatherDataSource {
             .baseUrl(BuildConfig.SERVER_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()
 
         return retrofit.create(OpenWeatherApi::class.java)
     }
 
-    override fun getWeather(city: String, callback: IWeatherDataSource.IWeatherCallback) {
-        remoteApi.weatherByCity(city, BuildConfig.WEATHER_API_KEY).enqueue(object :
-            Callback<WeatherResponse> {
-            override fun onResponse(call: Call<WeatherResponse>, response: Response<WeatherResponse>) {
-                if (response.body() != null) {
-                    var convertedWeather = mutableListOf<Weather>()
-                    response.body()!!.list.forEach {
-                        convertedWeather.add(Weather(it))
-                    }
-                    callback.onReceived(city, convertedWeather)
-                } else {
-                    callback.onFailure(R.string.no_data_available)
-                }
+    override fun getWeather(city: String): Single<IWeatherDataSource.WeatherData> {
+        return remoteApi.weatherByCity(city, BuildConfig.WEATHER_API_KEY)
+            .map {
+            var convertedWeather = mutableListOf<Weather>()
+            it!!.list.forEach { weather ->
+                convertedWeather.add(Weather(weather))
             }
-
-            override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
-                t.printStackTrace()
-                callback.onFailure(R.string.request_failure)
-            }
-        })
+            IWeatherDataSource.WeatherData(city, convertedWeather)
+        }
     }
 }
